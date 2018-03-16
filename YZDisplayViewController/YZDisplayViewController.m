@@ -270,6 +270,7 @@ static NSString * const ID = @"CONTENTCELL";
         
         UIScrollView *titleScrollView = [[UIScrollView alloc] init];
         titleScrollView.scrollsToTop = NO;
+        titleScrollView.scrollEnabled = NO;
         titleScrollView.backgroundColor = _titleScrollViewColor?_titleScrollViewColor:[UIColor colorWithWhite:1 alpha:0.7];
         
         [self.contentView addSubview:titleScrollView];
@@ -577,11 +578,19 @@ static NSString * const ID = @"CONTENTCELL";
         
         return;
     }
-    
+
+    self.titleWidths.removeAllObjects;
+    totalWidth = 0;
+    for (UIView *title in titles) {
+        [self.titleWidths addObject:@(YZScreenW/count)];
+        totalWidth += YZScreenW/count;
+    }
+
     CGFloat titleMargin = (YZScreenW - totalWidth) / (count + 1);
     
-    _titleMargin = titleMargin < margin? margin: titleMargin;
-    
+    //    _titleMargin = titleMargin < margin? margin: titleMargin;
+    _titleMargin = titleMargin;
+
     self.titleScrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, _titleMargin);
 }
 
@@ -978,7 +987,19 @@ static NSString * const ID = @"CONTENTCELL";
 // 让选中的按钮居中显示
 - (void)setLabelTitleCenter:(UILabel *)label
 {
-    
+    if ( self.titleWidths.count != 0 ) {
+        CGFloat totalwidth = 0.0;
+        for (NSNumber *width in self.titleWidths) {
+            totalwidth = totalwidth + width.floatValue;
+        }
+        if (totalwidth <= YZScreenW ){
+            return;
+        }
+    }
+    if (_titleWidth * self.titleLabels.count <= YZScreenW ){
+            return;
+    }
+
     // 设置标题滚动区域的偏移量
     CGFloat offsetX = label.center.x - YZScreenW * 0.5;
     
